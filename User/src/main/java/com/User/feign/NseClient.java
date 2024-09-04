@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-@FeignClient(name = "nse-service", url = "http://localhost:7071/api/stocks")
+@FeignClient(name = "nse-service", url = "http://localhost:7071/api/stocks", fallback = NseClientFallback.class)
 public interface NseClient {
 
     @GetMapping("/batch")
-    List<UserStockResponse> getStocksByIds(@RequestParam List<Long> ids);
+    List<StockResponse> getStocksByIds(@RequestParam List<Long> ids);
 
     @GetMapping("/allStocks")
     List<StockResponse> getAllStocks();

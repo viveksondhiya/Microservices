@@ -4,6 +4,8 @@ import com.demo.nse.entity.Stock;
 import com.demo.nse.entity.StockResponse;
 import com.demo.nse.service.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +23,15 @@ public class StockController {
     }
 
     @PostMapping("/listStock")
-    public Stock createStock(@RequestBody Stock stock) {
-        return stockService.createStock(stock);
+    public ResponseEntity<String> createStock(@RequestBody Stock stock) {
+        Stock createdStock = stockService.createStock(stock);
+        if (createdStock != null) {
+            return ResponseEntity.ok("Stock is listed successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to list stock.");
+        }
     }
+
 
     @GetMapping("/{id}")
     public Stock getStock(@PathVariable Long id) {
@@ -36,9 +44,15 @@ public class StockController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteStock(@PathVariable Long id) {
-        stockService.deleteStock(id);
+    public ResponseEntity<String> deleteStock(@PathVariable Long id) {
+        boolean isDeleted = stockService.deleteStock(id);
+        if (isDeleted) {
+            return ResponseEntity.ok("Stock removed from NSE successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Stock not found or could not be removed.");
+        }
     }
+
 
     @GetMapping("/batch")
     public List<StockResponse> getStocksByIds(@RequestParam List<Long> ids) {

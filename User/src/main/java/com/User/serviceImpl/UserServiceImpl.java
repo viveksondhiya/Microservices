@@ -3,6 +3,7 @@ package com.User.serviceImpl;
 import com.User.entity.*;
 import com.User.feign.BseClient;
 import com.User.feign.NseClient;
+import com.User.repository.StockRepository;
 import com.User.repository.UserRepository;
 import com.User.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private StockRepository stockRepository;
 
     @Autowired
     private BseClient bseClient; // Inject Feign Client
@@ -61,8 +65,6 @@ public class UserServiceImpl implements UserService {
         existingUser.setEmail(user.getEmail());
         existingUser.setCity(user.getCity());
         existingUser.setLastTradeDate(user.getLastTradeDate());
-        existingUser.setStockIdsBse(user.getStockIdsBse());
-        existingUser.setStockIdsNse(user.getStockIdsNse());
         return userRepository.save(existingUser);
     }
 
@@ -71,47 +73,38 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(clientId);
     }
     @Override
-    public UserWithStocksResponse getUserWithStocks(String clientId) {
-        User user = getUserByClientId(clientId);
-        UserResponse userSend=new UserResponse();
-        userSend.setClientId(user.getClientId());
-        userSend.setName(user.getName());
-        userSend.setEmail(user.getEmail());
-        userSend.setPhone(user.getPhone());
-        userSend.setCity(user.getCity());
-        userSend.setLastTradeDate(user.getLastTradeDate());
+    public List<StockResponse> getAllStocks() {
+        List<StockResponse> allStocks = new ArrayList<>();
 
-        List<Long> stockIdsBse = user.getStockIdsBse(); // Get stock IDs from user
-        List<Long> stockIdsNse = user.getStockIdsNse(); // Get stock IDs from user
+        try {
+            // Fetch stock details from BSE microservice
+            List<StockResponse> bseStocks = bseClient.getAllStocks();
+            allStocks.addAll(bseStocks.stream()
+                    .map(stock -> new StockResponse(stock.getSymbol(), stock.getName(), stock.getPrice(), stock.getDayLow(), stock.getDayHigh(),
+                            stock.getYearLow(), stock.getYearHigh(), stock.getMarketCap(), stock.getExchange(), stock.getOpen(), stock.getPrevClose()))
+                    .collect(Collectors.toList()));
+        } catch (Exception e) {
+            // Log the exception and proceed with data from the other service
+            System.out.println("BSE service is not available.");
+        }
 
-        // Fetch stock details from BSE microservice
-        List<UserStockResponse> bseStocks = bseClient.getStocksByIds(stockIdsBse);
-        // Fetch stock details from NSE microservice
-        List<UserStockResponse> nseStocks = nseClient.getStocksByIds(stockIdsNse);
+        try {
+            // Fetch stock details from NSE microservice
+            List<StockResponse> nseStocks = nseClient.getAllStocks();
+            allStocks.addAll(nseStocks.stream()
+                    .map(stock -> new StockResponse(stock.getSymbol(), stock.getName(), stock.getPrice(), stock.getDayLow(), stock.getDayHigh(),
+                            stock.getYearLow(), stock.getYearHigh(), stock.getMarketCap(), stock.getExchange(), stock.getOpen(), stock.getPrevClose()))
+                    .collect(Collectors.toList()));
+        } catch (Exception e) {
+            // Log the exception and proceed with data from the other service
+            System.out.println("NSE service is not available.");
+        }
 
-        // Combine the results from BSE and NSE
-        List<UserStockResponse> allStocks = new ArrayList<>();
-        allStocks.addAll(bseStocks);
-        allStocks.addAll(nseStocks);
+        if (allStocks.isEmpty()) {
+            throw new RuntimeException("Both NSE and BSE services are not available.");
+        }
 
-        return new UserWithStocksResponse(userSend, allStocks);
-    }
-
-    @Override
-    public List<StockResponse> getAllStocks(){
-        List<StockResponse> allStocks=new ArrayList<>();
-        // Fetch stock details from BSE microservice
-        List<StockResponse> bseStocks = bseClient.getAllStocks();
-        // Fetch stock details from NSE microservice
-        List<StockResponse> nseStocks = nseClient.getAllStocks();
-        // Combine and map the stocks to only include name and price
-        allStocks.addAll(bseStocks.stream()
-                .map(stock -> new StockResponse(stock.getName(), stock.getPrice()))
-                .collect(Collectors.toList()));
-
-        allStocks.addAll(nseStocks.stream()
-                .map(stock -> new StockResponse(stock.getName(), stock.getPrice()))
-                .collect(Collectors.toList()));
         return allStocks;
     }
+
 }

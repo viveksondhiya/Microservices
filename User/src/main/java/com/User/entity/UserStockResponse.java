@@ -10,7 +10,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserStockResponse {
+    private String symbol;
     private String name;
     private Double price;
-    private int quantity;
+    private Integer quantity;
+    private String exchange;
 }

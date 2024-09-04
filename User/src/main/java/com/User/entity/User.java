@@ -29,7 +29,6 @@ public class User implements UserDetails {
     private String clientId;
 
     private String name;
-
     private String email;
 
     private String password;
@@ -40,11 +39,9 @@ public class User implements UserDetails {
 
     private LocalDate lastTradeDate;
 
-    @ElementCollection
-    private List<Long> stockIdsBse;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Stock> userStocks;
 
-    @ElementCollection
-    private List<Long> stockIdsNse;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

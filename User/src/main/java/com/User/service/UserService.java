@@ -19,9 +19,6 @@ public interface UserService {
 
     void deleteUser(Long clientId);
 
-    // Method to get user details along with their stocks
-    UserWithStocksResponse getUserWithStocks(String clientId);
-
     List<StockResponse> getAllStocks();
 
 

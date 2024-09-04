@@ -18,7 +18,15 @@ public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String symbol;
     private String name;
     private Double price;
-    private int quantity;
+    private Double dayLow;
+    private Double dayHigh;
+    private Double yearLow;
+    private Double yearHigh;
+    private Double marketCap;
+    private String exchange;
+    private Double open;
+    private Double prevClose;
 }

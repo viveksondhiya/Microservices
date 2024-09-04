@@ -10,13 +10,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StockResponse {
+
+    private String symbol;
     private String name;
     private Double price;
-    private int quantity;
+    private Double dayLow;
+    private Double dayHigh;
+    private Double yearLow;
+    private Double yearHigh;
+    private Double marketCap;
+    private String exchange;
+    private Double open;
+    private Double prevClose;
 
-    public StockResponse(Long id, String name,Double price,int quantity) {
-        this.name=name;
-        this.price=price;
-        this.quantity=quantity;
-    }
 }

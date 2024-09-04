@@ -5,7 +5,10 @@ import com.User.entity.User;
 import com.User.entity.UserResponse;
 import com.User.entity.UserWithStocksResponse;
 import com.User.service.UserService;
+import com.User.service.UserStockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +22,8 @@ public class UserController {
     private UserService userService;
 
     @Autowired
+    private UserStockService userStockService;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/all")
@@ -31,16 +36,12 @@ public class UserController {
         return userService.getUserByClientId(clientId);
     }
 
-//    @PostMapping("/create")
-//    public User createUser(@RequestBody User user) {
-//        return userService.createUser(user);
-//    }
-@PostMapping("/create")
-public User createUser(@RequestBody User user) {
-    // Encode the password before saving
-    user.setPassword(passwordEncoder.encode(user.getPassword()));
-    return userService.createUser(user);
-}
+    @PostMapping("/create")
+    public User createUser(@RequestBody User user) {
+        // Encode the password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userService.createUser(user);
+    }
 
     @PutMapping("/{id}")
     public User updateUser(@PathVariable("id") String clientId, @RequestBody User user) {
@@ -54,11 +55,17 @@ public User createUser(@RequestBody User user) {
 
     @GetMapping("/{id}/withStocks")
     public UserWithStocksResponse getUserWithStocks(@PathVariable("id") String clientId) {
-        return userService.getUserWithStocks(clientId);
+        return userStockService.getUserWithStocks(clientId);
     }
 
     @GetMapping("/allStocks")
-    public List<StockResponse> getAllStocks() {
-        return userService.getAllStocks();
+    public ResponseEntity<?> getAllStocks() {
+        try {
+            List<StockResponse> stocks = userService.getAllStocks();
+            return ResponseEntity.ok(stocks);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Both NSE and BSE services are not available.");
+        }
     }
+
 }
