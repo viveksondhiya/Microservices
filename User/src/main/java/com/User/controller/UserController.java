@@ -49,8 +49,13 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable("id") Long clientId) {
-        userService.deleteUser(clientId);
+    public ResponseEntity<String> deleteUser(@PathVariable("id") Long clientId) {
+        boolean isDeleted = userService.deleteUser(clientId);
+        if (isDeleted) {
+            return ResponseEntity.ok("User deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found or could not be deleted.");
+        }
     }
 
     @GetMapping("/{id}/withStocks")
@@ -58,14 +63,6 @@ public class UserController {
         return userStockService.getUserWithStocks(clientId);
     }
 
-    @GetMapping("/allStocks")
-    public ResponseEntity<?> getAllStocks() {
-        try {
-            List<StockResponse> stocks = userService.getAllStocks();
-            return ResponseEntity.ok(stocks);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Both NSE and BSE services are not available.");
-        }
-    }
+
 
 }

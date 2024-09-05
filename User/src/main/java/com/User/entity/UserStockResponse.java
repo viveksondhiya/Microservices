@@ -7,7 +7,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class UserStockResponse {
     private String symbol;
@@ -15,4 +14,12 @@ public class UserStockResponse {
     private Double price;
     private Integer quantity;
     private String exchange;
+
+    public UserStockResponse(String symbol, String name, Double price, Integer quantity, String exchange) {
+        this.symbol = symbol;
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+        this.exchange = exchange;
+    }
 }

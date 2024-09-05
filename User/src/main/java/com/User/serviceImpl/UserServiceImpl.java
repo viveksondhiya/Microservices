@@ -22,6 +22,10 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private StockRepository stockRepository;
 
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Autowired
     private BseClient bseClient; // Inject Feign Client
     @Autowired
@@ -69,8 +73,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long clientId) {
-        userRepository.deleteById(clientId);
+    public boolean deleteUser(Long clientId) {
+        if (userRepository.existsById(clientId)) {
+            stockRepository.deleteById(clientId);
+            return true; // Stock was found and deleted
+        } else {
+            return false; // Stock was not found
+        }
     }
     @Override
     public List<StockResponse> getAllStocks() {

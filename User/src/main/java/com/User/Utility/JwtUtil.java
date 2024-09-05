@@ -15,6 +15,7 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
+
     // Define your secret key properly
     private final String secretKey = "using_jwt_secret_key_for_authentication"; // Use a secure and Base64-encoded key
     private final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes()); // Converts string to SecretKey object

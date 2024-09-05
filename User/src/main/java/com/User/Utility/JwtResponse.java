@@ -1,7 +1,5 @@
 package com.User.Utility;
 
-import lombok.AllArgsConstructor;
-
 public class JwtResponse {
     private final String jwtToken;
 

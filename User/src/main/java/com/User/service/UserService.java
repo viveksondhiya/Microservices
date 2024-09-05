@@ -17,7 +17,7 @@ public interface UserService {
 
     User updateUser(String clientId, User user);
 
-    void deleteUser(Long clientId);
+    boolean deleteUser(Long clientId);
 
     List<StockResponse> getAllStocks();
 
